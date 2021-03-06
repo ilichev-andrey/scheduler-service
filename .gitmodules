@@ -1,0 +1,6 @@
+[submodule "scheduler_telegram_bot"]
+	path = scheduler_telegram_bot
+	url = https://github.com/ilichev-andrey/scheduler_telegram_bot.git
+[submodule "scheduler_core"]
+	path = scheduler_core
+	url = https://github.com/ilichev-andrey/scheduler_core.git
