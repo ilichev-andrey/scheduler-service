@@ -1,0 +1,31 @@
+version: '3'
+
+services:
+  telegram_bot:
+    build: ./scheduler_telegram_bot
+    container_name: dinail58-telegram-bot
+    command: python main.py
+    restart: unless-stopped
+    environment:
+      - TELEGRAM_API_TOKEN=${TELEGRAM_API_TOKEN}
+    depends_on:
+      - core
+    networks:
+      - dinail58-network
+
+  core:
+    build: ./scheduler_core
+    container_name: dinail58-scheduler-core
+    command: python main.py
+    restart: unless-stopped
+    environment:
+      - DATABASE_PASSWORD=${DATABASE_PASSWORD}
+    networks:
+      - dinail58-network
+    extra_hosts:
+      - "database:${LOCAL_IP}"
+
+networks:
+  dinail58-network:
+    driver: bridge
+
