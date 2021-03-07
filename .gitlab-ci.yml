@@ -1,0 +1,9 @@
+image: docker
+
+services:
+  - docker:dind
+
+build:
+  script:
+    - docker build --tag scheduler-core:latest ./scheduler_core
+    - docker build --tag scheduler-telegram-bot:latest ./scheduler_telegram_bot
