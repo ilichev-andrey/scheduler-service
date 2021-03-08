@@ -10,6 +10,8 @@ variables:
   GIT_SUBMODULE_STRATEGY: recursive
 
 build:
+  only:
+    - master
   script:
     - docker pull registry.gitlab.com/ilichev-andrey/scheduler-service/scheduler-core:latest
     - docker pull registry.gitlab.com/ilichev-andrey/scheduler-service/scheduler-telegram-bot:latest
