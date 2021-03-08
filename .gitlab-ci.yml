@@ -11,8 +11,8 @@ variables:
 
 build:
   script:
-    - docker build --tag registry.gitlab.com/ilichev-andrey/scheduler-service/scheduler-core:latest --tag docker push registry.gitlab.com/ilichev-andrey/scheduler-service/scheduler-core:$CI_COMMIT_SHA ./scheduler_core
-    - docker build --tag registry.gitlab.com/ilichev-andrey/scheduler-service/scheduler-telegram-bot:latest registry.gitlab.com/ilichev-andrey/scheduler-service/scheduler-telegram-bot:$CI_COMMIT_SHA ./scheduler_telegram_bot
+    - docker build --tag registry.gitlab.com/ilichev-andrey/scheduler-service/scheduler-core:latest --tag registry.gitlab.com/ilichev-andrey/scheduler-service/scheduler-core:$CI_COMMIT_SHA ./scheduler_core
+    - docker build --tag registry.gitlab.com/ilichev-andrey/scheduler-service/scheduler-telegram-bot:latest --tag registry.gitlab.com/ilichev-andrey/scheduler-service/scheduler-telegram-bot:$CI_COMMIT_SHA ./scheduler_telegram_bot
     - docker push registry.gitlab.com/ilichev-andrey/scheduler-service/scheduler-core:latest
     - docker push registry.gitlab.com/ilichev-andrey/scheduler-service/scheduler-core:$CI_COMMIT_SHA
     - docker push registry.gitlab.com/ilichev-andrey/scheduler-service/scheduler-telegram-bot:latest
