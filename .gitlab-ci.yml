@@ -3,6 +3,9 @@ image: docker
 services:
   - docker:dind
 
+before_script:
+  - export
+
 variables:
   GIT_SUBMODULE_STRATEGY: recursive
 
