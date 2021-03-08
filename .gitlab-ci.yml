@@ -4,7 +4,7 @@ services:
   - docker:dind
 
 before_script:
-  - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD registry.gitlab.com
+  - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
 
 variables:
   GIT_SUBMODULE_STRATEGY: recursive
@@ -13,11 +13,11 @@ build:
   only:
     - master
   script:
-    - docker pull registry.gitlab.com/ilichev-andrey/scheduler-service/scheduler-core:latest
-    - docker pull registry.gitlab.com/ilichev-andrey/scheduler-service/scheduler-telegram-bot:latest
-    - docker build --cache-from registry.gitlab.com/ilichev-andrey/scheduler-service/scheduler-core:latest --tag registry.gitlab.com/ilichev-andrey/scheduler-service/scheduler-core:latest --tag registry.gitlab.com/ilichev-andrey/scheduler-service/scheduler-core:$CI_COMMIT_SHA ./scheduler_core
-    - docker build --cache-from registry.gitlab.com/ilichev-andrey/scheduler-service/scheduler-telegram-bot:latest --tag registry.gitlab.com/ilichev-andrey/scheduler-service/scheduler-telegram-bot:latest --tag registry.gitlab.com/ilichev-andrey/scheduler-service/scheduler-telegram-bot:$CI_COMMIT_SHA ./scheduler_telegram_bot
-    - docker push registry.gitlab.com/ilichev-andrey/scheduler-service/scheduler-core:latest
-    - docker push registry.gitlab.com/ilichev-andrey/scheduler-service/scheduler-core:$CI_COMMIT_SHA
-    - docker push registry.gitlab.com/ilichev-andrey/scheduler-service/scheduler-telegram-bot:latest
-    - docker push registry.gitlab.com/ilichev-andrey/scheduler-service/scheduler-telegram-bot:$CI_COMMIT_SHA
+    - docker pull $CI_REGISTRY_IMAGE/scheduler-core:latest
+    - docker pull $CI_REGISTRY_IMAGE/scheduler-telegram-bot:latest
+    - docker build --cache-from $CI_REGISTRY_IMAGE/scheduler-core:latest --tag $CI_REGISTRY_IMAGE/scheduler-core:latest --tag $CI_REGISTRY_IMAGE/scheduler-core:$CI_COMMIT_SHA ./scheduler_core
+    - docker build --cache-from $CI_REGISTRY_IMAGE/scheduler-telegram-bot:latest --tag $CI_REGISTRY_IMAGE/scheduler-telegram-bot:latest --tag $CI_REGISTRY_IMAGE/scheduler-telegram-bot:$CI_COMMIT_SHA ./scheduler_telegram_bot
+    - docker push $CI_REGISTRY_IMAGE/scheduler-core:latest
+    - docker push $CI_REGISTRY_IMAGE/scheduler-core:$CI_COMMIT_SHA
+    - docker push $CI_REGISTRY_IMAGE/scheduler-telegram-bot:latest
+    - docker push $CI_REGISTRY_IMAGE/scheduler-telegram-bot:$CI_COMMIT_SHA
