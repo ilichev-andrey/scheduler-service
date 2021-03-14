@@ -1,22 +1,37 @@
-image: docker
+stages:
+  - test
+  - deploy
 
-services:
-  - docker:dind
-
-before_script:
-  - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
-
-variables:
-  GIT_SUBMODULE_STRATEGY: recursive
-
-build:
-  only:
-    - master
-  script:
+default:
+  before_script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
     - docker pull $CI_REGISTRY_IMAGE/scheduler-core:latest
     - docker pull $CI_REGISTRY_IMAGE/scheduler-telegram-bot:latest
     - docker build --cache-from $CI_REGISTRY_IMAGE/scheduler-core:latest --tag $CI_REGISTRY_IMAGE/scheduler-core:latest --tag $CI_REGISTRY_IMAGE/scheduler-core:$CI_COMMIT_SHA ./scheduler_core
     - docker build --cache-from $CI_REGISTRY_IMAGE/scheduler-telegram-bot:latest --tag $CI_REGISTRY_IMAGE/scheduler-telegram-bot:latest --tag $CI_REGISTRY_IMAGE/scheduler-telegram-bot:$CI_COMMIT_SHA ./scheduler_telegram_bot
+
+variables:
+  GIT_SUBMODULE_STRATEGY: recursive
+
+test:
+  stage: test
+  image: docker
+  services:
+    - docker:dind
+  only:
+    - master
+  script:
+    - docker run $CI_REGISTRY_IMAGE/scheduler-core:latest python -m unittest discover -s tests/unit_tests -t ./
+    - docker run $CI_REGISTRY_IMAGE/scheduler-telegram-bot:latest python -m unittest discover -s tests/unit_tests -t ./
+
+deploy:
+  stage: deploy
+  image: docker
+  services:
+    - docker:dind
+  only:
+    - master
+  script:
     - docker push $CI_REGISTRY_IMAGE/scheduler-core:latest
     - docker push $CI_REGISTRY_IMAGE/scheduler-core:$CI_COMMIT_SHA
     - docker push $CI_REGISTRY_IMAGE/scheduler-telegram-bot:latest
