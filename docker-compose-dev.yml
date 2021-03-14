@@ -1,0 +1,45 @@
+version: '3'
+
+services:
+  telegram_bot:
+    build: ./scheduler_telegram_bot
+    container_name: dinail58-telegram-bot
+    command: python main.py
+    restart: unless-stopped
+    environment:
+      - LOG_FILE=/var/log/telegram_bot.log
+      - API_CONNECTION_HOST=core
+      - API_CONNECTION_PORT=3000
+      - TELEGRAM_API_TOKEN=${TELEGRAM_API_TOKEN}
+    depends_on:
+      - core
+    networks:
+      - dinail58-network
+    volumes:
+      - log_dir:/var/log
+
+  core:
+    build: ./scheduler_core
+    container_name: dinail58-scheduler-core
+    command: python main.py
+    restart: unless-stopped
+    environment:
+      - LOG_FILE=/var/log/core.log
+      - SERVER_HOST=core
+      - SERVER_PORT=3000
+      - DATABASE_NAME=${DATABASE_NAME}
+      - DATABASE_USER=${DATABASE_USER}
+      - DATABASE_PASSWORD=${DATABASE_PASSWORD}
+      - DATABASE_HOST=database
+      - DATABASE_PORT=${DATABASE_PORT}
+    networks:
+      - dinail58-network
+    extra_hosts:
+      - "database:${LOCAL_IP}"
+    volumes:
+      - log_dir:/var/log
+
+networks:
+  dinail58-network:
+    driver: bridge
+
