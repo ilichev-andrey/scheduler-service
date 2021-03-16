@@ -16,7 +16,7 @@ services:
     networks:
       - dinail58-network
     volumes:
-      - log_dir:/var/log
+      - tg_bot_log_dir:/var/log
 
   core:
     image: registry.gitlab.com/ilichev-andrey/scheduler-service/scheduler-core:latest
@@ -37,9 +37,12 @@ services:
     extra_hosts:
       - "database:${LOCAL_IP}"
     volumes:
-      - log_dir:/var/log
+      - core_log_dir:/var/log
 
 networks:
   dinail58-network:
     driver: bridge
 
+volumes:
+  tg_bot_log_dir:
+  core_log_dir:
