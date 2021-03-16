@@ -32,10 +32,10 @@ build:
   only:
     - master
   script:
-    - docker pull $CORE_CONTAINER:$TAG_CONTAINER_TEST_IMAGE
-    - docker pull $TG_BOT_CONTAINER:$TAG_CONTAINER_TEST_IMAGE
-    - docker build --cache-from $CORE_CONTAINER:$TAG_CONTAINER_TEST_IMAGE --tag $CORE_CONTAINER:$TAG_CONTAINER_TEST_IMAGE ./scheduler_core
-    - docker build --cache-from $TG_BOT_CONTAINER:$TAG_CONTAINER_TEST_IMAGE --tag $TG_BOT_CONTAINER:$TAG_CONTAINER_TEST_IMAGE ./scheduler_telegram_bot
+    - docker pull $CORE_CONTAINER:latest
+    - docker pull $TG_BOT_CONTAINER:latest
+    - docker build --cache-from $CORE_CONTAINER:latest --tag $CORE_CONTAINER:$TAG_CONTAINER_TEST_IMAGE ./scheduler_core
+    - docker build --cache-from $TG_BOT_CONTAINER:latest --tag $TG_BOT_CONTAINER:$TAG_CONTAINER_TEST_IMAGE ./scheduler_telegram_bot
     - docker push $CORE_CONTAINER:$TAG_CONTAINER_TEST_IMAGE
     - docker push $TG_BOT_CONTAINER:$TAG_CONTAINER_TEST_IMAGE
 
