@@ -35,23 +35,11 @@ test:
     - docker:dind
   only:
     - master
-  variables:
-    LOG_FILE: /var/log/file.log
-    API_CONNECTION_HOST: core
-    API_CONNECTION_PORT: 3000
-    TELEGRAM_API_TOKEN: token
-    SERVER_HOST: core
-    SERVER_PORT: 3000
-    DATABASE_NAME: database_name
-    DATABASE_USER: database_user
-    DATABASE_PASSWORD: database_password
-    DATABASE_HOST: database
-    DATABASE_PORT: database_port
   script:
     - docker pull $CORE_CONTAINER:$TAG_CONTAINER_TEST_IMAGE
     - docker pull $TG_BOT_CONTAINER:$TAG_CONTAINER_TEST_IMAGE
-    - docker run $CORE_CONTAINER:$TAG_CONTAINER_TEST_IMAGE python -m unittest discover -s tests/unit_tests -t ./
-    - docker run $TG_BOT_CONTAINER:$TAG_CONTAINER_TEST_IMAGE python -m unittest discover -s tests/unit_tests -t ./
+    - docker run --env-file ./scheduler_core/.env.example $CORE_CONTAINER:$TAG_CONTAINER_TEST_IMAGE python -m unittest discover -s tests/unit_tests -t ./
+    - docker run --env-file ./scheduler_telegram_bot/.env.example $TG_BOT_CONTAINER:$TAG_CONTAINER_TEST_IMAGE python -m unittest discover -s tests/unit_tests -t ./
 
 release:
   stage: release
