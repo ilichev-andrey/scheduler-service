@@ -1,17 +1,43 @@
 stages:
+  - build
   - test
-  - deploy
+  - release
+
+variables:
+  GIT_SUBMODULE_STRATEGY: recursive
+  TAG_CONTAINER_TEST_IMAGE: $CI_COMMIT_REF_SLUG-test
+  CORE_CONTAINER: $CI_REGISTRY_IMAGE/scheduler-core
+  TG_BOT_CONTAINER: $CI_REGISTRY_IMAGE/scheduler-telegram-bot
+  LOG_FILE: /var/log/file.log
+  API_CONNECTION_HOST: core
+  API_CONNECTION_PORT: 3000
+  TELEGRAM_API_TOKEN: token
+  SERVER_HOST: core
+  SERVER_PORT: 3000
+  DATABASE_NAME: database_name
+  DATABASE_USER: database_user
+  DATABASE_PASSWORD: database_password
+  DATABASE_HOST: database
+  DATABASE_PORT: database_port
 
 default:
   before_script:
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
-    - docker pull $CI_REGISTRY_IMAGE/scheduler-core:latest
-    - docker pull $CI_REGISTRY_IMAGE/scheduler-telegram-bot:latest
-    - docker build --cache-from $CI_REGISTRY_IMAGE/scheduler-core:latest --tag $CI_REGISTRY_IMAGE/scheduler-core:latest --tag $CI_REGISTRY_IMAGE/scheduler-core:$CI_COMMIT_SHA ./scheduler_core
-    - docker build --cache-from $CI_REGISTRY_IMAGE/scheduler-telegram-bot:latest --tag $CI_REGISTRY_IMAGE/scheduler-telegram-bot:latest --tag $CI_REGISTRY_IMAGE/scheduler-telegram-bot:$CI_COMMIT_SHA ./scheduler_telegram_bot
 
-variables:
-  GIT_SUBMODULE_STRATEGY: recursive
+build:
+  stage: build
+  image: docker
+  services:
+    - docker:dind
+  only:
+    - master
+  script:
+    - docker pull $CORE_CONTAINER:$TAG_CONTAINER_TEST_IMAGE
+    - docker pull $TG_BOT_CONTAINER:$TAG_CONTAINER_TEST_IMAGE
+    - docker build --cache-from $CORE_CONTAINER:$TAG_CONTAINER_TEST_IMAGE --tag $CORE_CONTAINER:$TAG_CONTAINER_TEST_IMAGE ./scheduler_core
+    - docker build --cache-from $TG_BOT_CONTAINER:$TAG_CONTAINER_TEST_IMAGE --tag $TG_BOT_CONTAINER:$TAG_CONTAINER_TEST_IMAGE ./scheduler_telegram_bot
+    - docker push $CORE_CONTAINER:$TAG_CONTAINER_TEST_IMAGE
+    - docker push $TG_BOT_CONTAINER:$TAG_CONTAINER_TEST_IMAGE
 
 test:
   stage: test
@@ -21,18 +47,22 @@ test:
   only:
     - master
   script:
-    - docker run $CI_REGISTRY_IMAGE/scheduler-core:latest python -m unittest discover -s tests/unit_tests -t ./
-    - docker run $CI_REGISTRY_IMAGE/scheduler-telegram-bot:latest python -m unittest discover -s tests/unit_tests -t ./
+    - docker pull $CORE_CONTAINER:$TAG_CONTAINER_TEST_IMAGE
+    - docker pull $TG_BOT_CONTAINER:$TAG_CONTAINER_TEST_IMAGE
+    - docker run $CORE_CONTAINER:$TAG_CONTAINER_TEST_IMAGE python -m unittest discover -s tests/unit_tests -t ./
+    - docker run $TG_BOT_CONTAINER:$TAG_CONTAINER_TEST_IMAGE python -m unittest discover -s tests/unit_tests -t ./
 
-deploy:
-  stage: deploy
+release:
+  stage: release
   image: docker
   services:
     - docker:dind
   only:
     - master
   script:
-    - docker push $CI_REGISTRY_IMAGE/scheduler-core:latest
-    - docker push $CI_REGISTRY_IMAGE/scheduler-core:$CI_COMMIT_SHA
-    - docker push $CI_REGISTRY_IMAGE/scheduler-telegram-bot:latest
-    - docker push $CI_REGISTRY_IMAGE/scheduler-telegram-bot:$CI_COMMIT_SHA
+    - docker pull $CORE_CONTAINER:$TAG_CONTAINER_TEST_IMAGE
+    - docker pull $TG_BOT_CONTAINER:$TAG_CONTAINER_TEST_IMAGE
+    - docker tag $CORE_CONTAINER:$TAG_CONTAINER_TEST_IMAGE $CORE_CONTAINER:latest
+    - docker tag $TG_BOT_CONTAINER:$TAG_CONTAINER_TEST_IMAGE $TG_BOT_CONTAINER:latest
+    - docker push $CORE_CONTAINER:latest
+    - docker push $TG_BOT_CONTAINER:latest
